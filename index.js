@@ -2,9 +2,21 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import  User from './src/models/user';
+import fs from 'fs';
+import multer from 'multer';
+import {updateCity} from './src/controllers/update';
 mongoose.connect('mongodb://dalip123:dannyLUCK1!@ds157584.mlab.com:57584/vote', { useNewUrlParser: true });
 const app=express();
+const storage = multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, './images');
+      },
+      filename: (req, file, cb) =>{
+        console.log("upload cb",file.originalname);
+    cb(null,file.originalname);
+  },
+    });
+const upload = multer({ storage:storage});
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -14,20 +26,15 @@ app.get('/',(req,res)=>{
 })
 app.post('/update-city',(req,res)=>{
   let result=req.body;
-  console.log("city",result.city);
-  User.update({user_name:result.user_name},{
-    $set:{
-    city:result.city
-  }
-}).exec((err,data)=>{
-    if(!err){
-      console.log("data ",data);
-      res.json(data);
-    }
-    else {
-      console.log("err",err);
-     res.json({err:err.message});
-    }
-  });
+  updateCity(result,res);
 })
+app.post('/add-new-form',(req,res)=>{
+  let result=req.body;
+    console.log("result",result);
+    res.json("working");
+});
+app.post('/upload-image',upload.single('file'),(req,res)=>{
+   console.log("file:",req.file);
+   res.json("working");
+    })
 app.listen(3001,()=>{console.log("listening port 3001")});

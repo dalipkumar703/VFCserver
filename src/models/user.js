@@ -6,7 +6,8 @@ module.exports =mongoose.model('User',
                new Schema({
                  user_name:{
                    type:String,
-                   required:true
+                   required:true,
+                   unique:true
                  },
                    email: {
                      type:String,
